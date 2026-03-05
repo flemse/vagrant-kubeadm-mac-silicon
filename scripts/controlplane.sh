@@ -5,6 +5,7 @@
 set -euxo pipefail
 
 NODENAME=$(hostname -s)
+CONTROL_IP=$(ip addr list eth0 |grep "inet " |cut -d' ' -f6|cut -d/ -f1)
 
 sudo kubeadm config images pull
 

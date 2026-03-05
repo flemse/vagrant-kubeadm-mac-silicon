@@ -9,10 +9,10 @@ cluster_name: Kubernetes Cluster
 # All IPs/CIDRs should be private and allowed in /etc/vbox/networks.conf.
 network:
   # Worker IPs are simply incremented from the control IP.
-  control_ip: 10.0.0.10
+  # On UTM/Apple Silicon, VMs get dynamic IPs on the 192.168.64.x shared network.
+  control_ip: 192.168.64.3
   dns_servers:
   - 8.8.8.8
-  - 1.1.1.1
   pod_cidr: 172.16.1.0/16
   service_cidr: 172.17.1.0/18
 nodes:
@@ -25,9 +25,9 @@ nodes:
     memory: 2048
 # Mount additional shared folders from the host into each virtual machine.
 # Note that the project directory is automatically mounted at /vagrant.
-# shared_folders:
-#   - host_path: ../images
-#     vm_path: /vagrant/images
+shared_folders:
+  - host_path: tmp/vagrant_shared/
+    vm_path: /vagrant/
 software:
   box: bento/ubuntu-24.04
   calico: 3.26.0

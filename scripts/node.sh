@@ -6,6 +6,18 @@ set -euxo pipefail
 
 config_path="/vagrant/configs"
 
+# Wait for controlplane to finish writing join.sh
+echo "Waiting for join.sh from controlplane..."
+timeout=180
+until [ -f "$config_path/join.sh" ] && [ -s "$config_path/join.sh" ]; do
+  timeout=$((timeout - 5))
+  if [ $timeout -le 0 ]; then
+    echo "ERROR: Timed out waiting for $config_path/join.sh"
+    exit 1
+  fi
+  sleep 5
+done
+
 /bin/bash $config_path/join.sh -v
 
 sudo -i -u vagrant bash << EOF

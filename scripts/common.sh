@@ -6,6 +6,8 @@ set -euxo pipefail
 
 # Variable Declaration
 
+NODE_IP=$(ip addr list eth0 |grep "inet " |cut -d' ' -f6|cut -d/ -f1)
+
 # DNS Setting
 if [ ! -d /etc/systemd/resolved.conf.d ]; then
 	sudo mkdir /etc/systemd/resolved.conf.d/
@@ -16,6 +18,10 @@ DNS=${DNS_SERVERS}
 EOF
 
 sudo systemctl restart systemd-resolved
+
+# Point resolv.conf at the stub listener so only 127.0.0.53 appears,
+# avoiding "nameserver limits exceeded" from multi-interface DNS entries.
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 # disable swap
 sudo swapoff -a
@@ -73,8 +79,7 @@ sudo apt-get install -y kubelet="$KUBERNETES_VERSION" kubectl="$KUBERNETES_VERSI
 sudo apt-get update -y
 sudo apt-get install -y jq
 
-local_ip="$(ip --json a s | jq -r '.[] | if .ifname == "eth1" then .addr_info[] | if .family == "inet" then .local else empty end else empty end')"
 cat > /etc/default/kubelet << EOF
-KUBELET_EXTRA_ARGS=--node-ip=$local_ip
+KUBELET_EXTRA_ARGS=--node-ip=${NODE_IP}
 ${ENVIRONMENT}
 EOF

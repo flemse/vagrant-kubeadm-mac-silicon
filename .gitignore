@@ -31,3 +31,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Bob CLI session data
+.bob/
+tmp/
